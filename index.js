@@ -32,8 +32,17 @@ async function run() {
     // ALl Methords 
     app.post('/users', async (req, res)=>{
       const newUser = req.body;
-      const result = await usersCollention.insertOne(newUser);
-      res.send(result);
+      const email = req.body.email;
+      const query = {email: email}
+      const existingUser = await usersCollention.findOne(query);
+      if(existingUser){
+        res.send({message: 'User already exist, Do not need to insert again.'});
+      }
+      else{
+        const result = await usersCollention.insertOne(newUser);
+        res.send(result);
+
+      }
 
     })
 
