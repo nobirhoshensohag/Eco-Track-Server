@@ -23,6 +23,33 @@ async function run() {
   try {
     
     await client.connect();
+
+     // All collection and Database
+    const db = client.db("assignment10");
+    const usersCollention = db.collection("users");
+    
+
+    // ALl Methords 
+    app.post('/users', async (req, res)=>{
+      const newUser = req.body;
+      const result = await usersCollention.insertOne(newUser);
+      res.send(result);
+
+    })
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -34,8 +61,10 @@ run().catch(console.dir);
 
 
 app.get("/", (req, res) => {
-  res.send("RentWheels Server is running");
+  res.send("Server is running");
 });
 app.listen(port, () => {
   console.log(`Server is hitting on port ${port}`);
 });
+
+
