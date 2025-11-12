@@ -93,7 +93,7 @@ async function run() {
 });
 
 
-// GET all participants for a specific challenge/event
+
 app.get('/api/joined-events/:challengeId', async (req, res) => {
   try {
     const { challengeId } = req.params;
@@ -316,7 +316,35 @@ app.get('/api/joined-events/:challengeId', async (req, res) => {
       res.send(result);
     })
 
-    
+    app.patch('/api/challenges/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updatedData = req.body;
+    const query = { _id: new ObjectId(id) };
+
+
+    const updateDoc = {
+      $set: {
+        title: updatedData.title,
+        category: updatedData.category,
+        description: updatedData.description,
+        duration: updatedData.duration,
+        target: updatedData.target,
+        impactMetric: updatedData.impactMetric,
+        startDate: updatedData.startDate,
+        endDate: updatedData.endDate,
+        imageUrl: updatedData.imageUrl,
+        updatedAt: new Date(),
+      },
+    };
+
+    const result = await challengesCollection.updateOne(query, updateDoc);
+    res.send(result);
+  } catch (error) {
+    console.error("Error updating challenge:", error);
+    res.status(500).send({ message: "Failed to update challenge" });
+  }
+});
 
 
 
