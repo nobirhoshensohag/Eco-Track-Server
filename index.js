@@ -346,11 +346,18 @@ app.get('/api/joined-events/:challengeId', async (req, res) => {
   }
 });
 
+app.delete('/api/challenges/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
 
-
-
-
-
+    const result = await challengesCollection.deleteOne(query);
+    res.send(result);
+  } catch (error) {
+    console.error("Error deleting challenge:", error);
+    res.status(500).send({ message: "Failed to delete challenge" });
+  }
+});
 
 
 
