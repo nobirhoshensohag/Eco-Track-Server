@@ -360,7 +360,12 @@ app.delete('/api/challenges/:id', async (req, res) => {
 });
 
 
-
+ app.get('/api/challenges/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await challengesCollection.findOne(query);
+      res.send(result);
+    })
 
 
 
