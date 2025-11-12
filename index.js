@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     // All collection and Database
     const db = client.db("assigment10");
@@ -32,6 +32,7 @@ async function run() {
     const eventsCollection = db.collection("events");
     const subscribersCollection = db.collection("subscribers");
     const challengesParticipantsCollection = db.collection("challengesParticipants");
+    const joinedEventsCollection = db.collection("joined_events")
 
 
 
@@ -50,6 +51,60 @@ async function run() {
 
       }
     })
+
+
+    app.post('/api/joined-events', async (req, res) => {
+  try {
+    const { participantName, participantEmail, participantLocation, challengeId } = req.body;
+
+    if (!participantName || !participantEmail || !participantLocation || !challengeId) {
+      return res.status(400).send({ message: "All fields are required" });
+    }
+
+    // Check if participant already joined this challenge
+    const existing = await joinedEventsCollection.findOne({ participantEmail, challengeId });
+    if (existing) {
+      return res.status(400).send({ message: "You have already joined this challenge!" });
+    }
+
+    // Insert new joined event record
+    const result = await joinedEventsCollection.insertOne({
+      participantName,
+      participantEmail,
+      participantLocation,
+      challengeId,
+      joinedAt: new Date(),
+    });
+
+    // Update participants count in challengesCollection
+    await challengesCollection.updateOne(
+      { _id: new ObjectId(challengeId) },
+      { $inc: { participants: 1 } }
+    );
+
+    res.status(201).send({
+      message: "Successfully joined the event",
+      result,
+    });
+  } catch (error) {
+    console.error("Error joining event:", error);
+    res.status(500).send({ message: "Server error", error });
+  }
+});
+
+
+// GET all participants for a specific challenge/event
+app.get('/api/joined-events/:challengeId', async (req, res) => {
+  try {
+    const { challengeId } = req.params;
+    const participants = await joinedEventsCollection.find({ challengeId }).toArray();
+    res.send(participants);
+  } catch (error) {
+    console.error("Error fetching joined events:", error);
+    res.status(500).send({ message: "Server error", error });
+  }
+});
+
 
     
 
